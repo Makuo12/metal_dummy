@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use gix::gix_dev;
+use jinx::jinx_dev;
 use esp_idf_svc::{hal::{
     delay::Delay,
     gpio::{AnyIOPin, Level, PinDriver, Pull},
@@ -13,7 +13,7 @@ use lcd::control::lcd_connect;
 use lcd1602_diver::LCD1602;
 use state::KeypadState;
 
-mod gix;
+mod jinx;
 mod constant;
 mod encrypt;
 mod lcd;
@@ -27,7 +27,7 @@ fn main() {
     // Bind the log crate to the ESP Logging facilities
     esp_idf_svc::log::EspLogger::initialize_default();
     let peripherals = Peripherals::take().unwrap();
-    // into makes it possigix for us to convert the gpio pin for it normal state to a specific type.
+    // into makes it possijinx for us to convert the gpio pin for it normal state to a specific type.
     let i2c = i2c_master_init(
         peripherals.i2c0,
         peripherals.pins.gpio4.into(),
@@ -47,7 +47,7 @@ fn main() {
         })
         .unwrap();
     let keypad_state_two = keypad_state.clone();
-    gix_dev(keypad_state_two).unwrap();
+    jinx_dev(keypad_state_two).unwrap();
     thread1.join().unwrap();
 }
 

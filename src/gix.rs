@@ -9,7 +9,7 @@ use std::{
 
 use crate::{
     constant::{
-        GIX_SERVICE, CANCEL_CODE, DEVICE_ID, ENCRYPTION_DEVICE_ID_KEY, ENCRYPTION_KEY_PRICE,
+        JINX_SERVICE, CANCEL_CODE, DEVICE_ID, ENCRYPTION_DEVICE_ID_KEY, ENCRYPTION_KEY_PRICE,
     },
     encrypt::{aes_cipher, confirm, DeviceUser},
     lcd::control::lcd_connect,
@@ -18,10 +18,10 @@ use crate::{
 
 type ConnArc = Arc<Mutex<heapless::Vec<Conn, 40>>>;
 
-pub fn gix_dev(keypad_state: Arc<KeypadState>) -> anyhow::Result<()> {
-    let gix_device = GIXDevice::take();
-    let gix_advertising = gix_device.get_advertising();
-    let server = gix_device.get_server();
+pub fn jinx_dev(keypad_state: Arc<KeypadState>) -> anyhow::Result<()> {
+    let jinx_device = JINXDevice::take();
+    let jinx_advertising = jinx_device.get_advertising();
+    let server = jinx_device.get_server();
     let connected_device_id = Arc::new(AtomicBool::new(false));
     let connected_price = Arc::new(AtomicBool::new(false));
     let conn_handle_device_id = Arc::new(AtomicU16::new(0));
@@ -49,7 +49,7 @@ pub fn gix_dev(keypad_state: Arc<KeypadState>) -> anyhow::Result<()> {
     let conns_arc: ConnArc = Arc::new(Mutex::new(heapless::Vec::new()));
     let conn_arc_one = conns_arc.clone();
     // let conn_arc_two = conns_arc.clone();
-    gix_device
+    jinx_device
         .set_power(PowerType::Default, PowerLevel::N0)
         .unwrap();
     server.on_connect(move |server, desc| {
@@ -63,7 +63,7 @@ pub fn gix_dev(keypad_state: Arc<KeypadState>) -> anyhow::Result<()> {
             driver_connected_two.store(false, Ordering::Release);
         }
     });
-    let service = server.create_service(uuid128!(GIX_SERVICE));
+    let service = server.create_service(uuid128!(JINX_SERVICE));
     // A static characteristic.
     driver_price_characteristic
         .lock()
@@ -107,10 +107,10 @@ pub fn gix_dev(keypad_state: Arc<KeypadState>) -> anyhow::Result<()> {
             args.notify();
         });
 
-    // A writagix characteristic.
-    let writagix_characteristic = service.lock().create_characteristic(
+    // A writajinx characteristic.
+    let writajinx_characteristic = service.lock().create_characteristic(
     );
-    writagix_characteristic
+    writajinx_characteristic
         .lock()
         .on_read(move |args, _| {
             args.set_value(&[0; 16]);
@@ -141,10 +141,10 @@ pub fn gix_dev(keypad_state: Arc<KeypadState>) -> anyhow::Result<()> {
             args.notify();
         });
 
-    gix_advertising.lock().set_data(
-        GIXAdvertisementData::new()
+    jinx_advertising.lock().set_data(
+        JINXAdvertisementData::new()
     )?;
-    gix_advertising.lock().start()?;
+    jinx_advertising.lock().start()?;
 
     // let mut buf = [0_u8; 10];
     // let mut initialized = true;
