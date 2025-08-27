@@ -2,6 +2,8 @@ use esp_idf_svc::hal::{delay::Delay, i2c::I2cDriver};
 use heapless::Vec;
 use lcd1602_diver::{data_bus::I2CBus, LCD1602};
 
+use crate::cloud::pipe::MetalPaymentResponse;
+
 pub fn show_message(
     lcd: &mut LCD1602<I2CBus<I2cDriver<'_>>>,
     delay: &mut Delay,
@@ -60,6 +62,34 @@ pub fn setup_lcd(lcd: &mut LCD1602<I2CBus<I2cDriver<'_>>>, delay: &mut Delay) {
 
 pub fn setup_transmisson_msg(lcd: &mut LCD1602<I2CBus<I2cDriver<'_>>>, delay: &mut Delay) {
     lcd.clear(delay).unwrap();
+lcd.write_char('P', delay).unwrap();
+lcd.write_char('a', delay).unwrap();
+lcd.write_char('y', delay).unwrap();
+lcd.write_char('m', delay).unwrap();
+lcd.write_char('e', delay).unwrap();
+lcd.write_char('n', delay).unwrap();
+lcd.write_char('t', delay).unwrap();
+lcd.write_char(' ', delay).unwrap();
+lcd.write_char('i', delay).unwrap();
+lcd.write_char('n', delay).unwrap();
+lcd.write_char(',', delay).unwrap();
+lcd.set_cursor_pos(40, delay).unwrap();
+lcd.write_char('p', delay).unwrap();
+lcd.write_char('r', delay).unwrap();
+lcd.write_char('o', delay).unwrap();
+lcd.write_char('g', delay).unwrap();
+lcd.write_char('r', delay).unwrap();
+lcd.write_char('e', delay).unwrap();
+lcd.write_char('s', delay).unwrap();
+lcd.write_char('s', delay).unwrap();
+
+}
+
+
+pub fn payment_done(lcd: &mut LCD1602<I2CBus<I2cDriver<'_>>>, delay: &mut Delay, person_first_name: &str) {
+    lcd.clear(delay).unwrap();
+    
+    // First line: "Payment from"
     lcd.write_char('P', delay).unwrap();
     lcd.write_char('a', delay).unwrap();
     lcd.write_char('y', delay).unwrap();
@@ -68,16 +98,49 @@ pub fn setup_transmisson_msg(lcd: &mut LCD1602<I2CBus<I2cDriver<'_>>>, delay: &m
     lcd.write_char('n', delay).unwrap();
     lcd.write_char('t', delay).unwrap();
     lcd.write_char(' ', delay).unwrap();
-    lcd.write_char('i', delay).unwrap();
-    lcd.write_char('n', delay).unwrap();
-    lcd.write_char(',', delay).unwrap();
-    lcd.set_cursor_pos(40, delay).unwrap();
-    lcd.write_char('p', delay).unwrap();
+    lcd.write_char('f', delay).unwrap();
     lcd.write_char('r', delay).unwrap();
     lcd.write_char('o', delay).unwrap();
-    lcd.write_char('g', delay).unwrap();
-    lcd.write_char('r', delay).unwrap();
-    lcd.write_char('e', delay).unwrap();
-    lcd.write_char('s', delay).unwrap();
-    lcd.write_char('s', delay).unwrap();
+    lcd.write_char('m', delay).unwrap();
+    
+    // Second line: Show first name (truncated if needed)
+    lcd.set_cursor_pos(40, delay).unwrap();
+    
+    // Display up to 16 characters of the name (LCD width limit)
+    let mut name_chars = [' '; 16];
+    for (i, ch) in person_first_name.chars().take(16).enumerate() {
+        name_chars[i] = ch;
+    }
+
+    for ch in name_chars {
+        lcd.write_char(ch, delay).unwrap();
+    }
+}
+
+
+pub fn network(lcd: &mut LCD1602<I2CBus<I2cDriver<'_>>>, good: bool, delay: &mut Delay) {
+    if good {
+        write_message(lcd, delay, "Network Access");
+    } else {
+        write_message(lcd, delay, "No Network");
+    }
+    
+}
+
+
+pub fn write_message(
+    lcd: &mut LCD1602<I2CBus<I2cDriver<'_>>>,
+    delay: &mut Delay,
+    message: &str,
+) {
+    lcd.clear(delay).unwrap();
+    lcd.set_cursor_pos(0, delay).unwrap(); // start from top-left
+
+    for (i, ch) in message.chars().enumerate() {
+        // move to second line if too long for one line (16x2 LCD)
+        if i == 16 {
+            lcd.set_cursor_pos(40, delay).unwrap(); // row 2
+        }
+        lcd.write_char(ch, delay).unwrap();
+    }
 }
