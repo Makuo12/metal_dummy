@@ -40,15 +40,9 @@ pub fn keypad_control(
         } else {
             if state.sent.compare_exchange(true, false,
                 Ordering::Relaxed, Ordering::Relaxed).is_ok() {
-                    if let Ok(msg) = state.msg.write().as_mut() {
-                        lcd_task(&mut on_sent, &state, 'M', &mut previous_msg, msg, &mut can_type);
-                    }
-                    delay.delay_ms(7000);
-                    lcd_task(&mut on_sent,  &state,'P', &mut previous_msg, &mut random_msg, &mut can_type);
-                    on_sent = true;
+                    ...
             } else {
-                let value = key.read_char();
-                let ch = key.get_char(value);
+                ...
                 if ch != ' ' {
                     if ch != character {
                         if let Ok(msg) = state.msg.try_write().as_mut() {
